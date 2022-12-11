@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:scanbarcode/model_listno.dart';
 import 'package:intl/intl.dart';
@@ -12,13 +11,10 @@ import 'package:scanbarcode/custemElevatedButton.dart';
 class GetApiData extends StatefulWidget {
   final String barcode;
   const GetApiData({Key? key, required this.barcode}) : super(key: key);
-
   @override
-  State<GetApiData> createState() => _GetApiDataState(barcode);
+  State<GetApiData> createState() => _GetApiDataState();
 }
-
 class _GetApiDataState extends State<GetApiData> {
-  final String scanBarcode;
   TextEditingController textController = TextEditingController();
   List<DataModel>  data = [];
   List<DataModel>  dataCheckbox = [];
@@ -26,7 +22,8 @@ class _GetApiDataState extends State<GetApiData> {
   final DateFormat formatter = DateFormat('MM/dd/yyyy HH:mm:ss');
   File? image;
   var stt = 0;
-  _GetApiDataState(this.scanBarcode);
+  bool dataSuccess = true;
+  bool imageSuccess = true;
   @override
   void initState() {
     _getData();
@@ -34,7 +31,7 @@ class _GetApiDataState extends State<GetApiData> {
   }
   _getData() async {
     try {
-      var response = await Dio().get('http://113.161.6.185:82/api/PackageListSeverTest/Get?listOW=$scanBarcode');
+      var response = await Dio().get('http://113.161.6.185:82/api/PackageListSeverTest/Get?listOW=${widget.barcode}');
       final decodedResponse = response.data;
       print(decodedResponse);
       List<DataModel>  temp = [];
@@ -82,7 +79,7 @@ class _GetApiDataState extends State<GetApiData> {
   Widget header(){
     return Table(
       columnWidths: const <int, TableColumnWidth>{
-        0: FlexColumnWidth(1.55),
+        0: FlexColumnWidth(1.35),
         1: FlexColumnWidth(2),
 
       },
@@ -108,12 +105,12 @@ class _GetApiDataState extends State<GetApiData> {
                   Container(
                     alignment: Alignment.center,
                     height: 40,
-                    width: 90,
+                    width: 95,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1),
                       borderRadius: BorderRadius.all(Radius.circular(5))
                     ),
-                    child: Text('${dataCheckbox[0].OWCheckListNo}', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 13),),
+                    child: Text(data.isNotEmpty ? data.first.OWCheckListNo ?? "" : "", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 13),),
                   )
                 ]
               ),
@@ -126,7 +123,7 @@ class _GetApiDataState extends State<GetApiData> {
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text("Ngày XN", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 13),),
+                    const Text("Ngày xác nhận", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 13),),
                     SizedBox(width: 10,),
                     Container(
                       alignment: Alignment.center,
@@ -136,7 +133,7 @@ class _GetApiDataState extends State<GetApiData> {
                           border: Border.all(width: 1),
                           borderRadius: BorderRadius.all(Radius.circular(5))
                       ),
-                      child: Text(formatter.format(now), style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 13),),
+                      child: Text(formatter.format(now), style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 13),textAlign: TextAlign.center,),
                     )
                   ]
               ),
@@ -156,7 +153,7 @@ class _GetApiDataState extends State<GetApiData> {
                     Container(
                       alignment: Alignment.center,
                       height: 40,
-                      width: 60,
+                      width: 70,
                       decoration: BoxDecoration(
                           border: Border.all(width: 1),
                           borderRadius: BorderRadius.all(Radius.circular(5))
@@ -171,10 +168,21 @@ class _GetApiDataState extends State<GetApiData> {
             verticalAlignment: TableCellVerticalAlignment.bottom,
             child: Container(
               height: 50,
-              margin: EdgeInsets.only(left: 50),
-              child: image != null ?
-                CustomElevatedButton(onPressed: () => confirmBarcode(), child: const Text('Lưu xác nhận', style: TextStyle(color: Colors.blue),),)
-                :CustomElevatedButton(onPressed: () => pickImage(), child: const Text('Chụp phiếu', style: TextStyle(color: Colors.blue)),)
+              margin: EdgeInsets.only(left: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomElevatedButton(
+                    onPressed: () => confirmBarcode(),
+                    child: const Text('Lưu\nxác nhận',textAlign: TextAlign.center),
+                  ),
+                  // SizedBox(width: 5,),
+                  image != null ? CustomElevatedButton(
+                    onPressed: () => postImage(data.isNotEmpty ? data.first.OWCheckListNo ?? "" : ""),
+                    child: const Text('Lưu ảnh\nphiếu',textAlign: TextAlign.center),)
+                      :CustomElevatedButton(onPressed: () => pickImage(), child: const Text('Chụp phiếu',textAlign: TextAlign.center))
+                ],
+              )
             ),
           ),
         ]),
@@ -313,7 +321,6 @@ class _GetApiDataState extends State<GetApiData> {
             child: Checkbox(
               value: data.checkbox,
               onChanged: (bool? value) {
-                stt = 0;
                 setState(() => data.checkbox = value);
               },
             ),
@@ -322,12 +329,18 @@ class _GetApiDataState extends State<GetApiData> {
       ),
     ]);
   }
-  confirmBarcode(){
+  confirmBarcode() async{
+    dataSuccess = true;
     var temp = data.sublist(0,5).where((element) => element.checkbox == true).toList();
     for (var element in temp) {
       var date = element.FTFinishDate = formatter.format(now).toString();
       var rowID = element.RowID;
-      putData(rowID, date);
+      await putData(rowID, date);
+    }
+    if(dataSuccess){
+      customDialog('Đã lưu xác nhận thành công');
+    } else {
+      customDialog('Lưu xác nhận chưa thành công');
     }
     setState((){
       dataCheckbox.clear();
@@ -338,19 +351,39 @@ class _GetApiDataState extends State<GetApiData> {
     try {
       var response = await Dio().put('http://113.161.6.185:82/api/PackageListSeverTest/${rowID}',
           data: {'FTFinishDate': date});
-          print('$rowID: $date');
           if (response.statusCode == 200) {
-          // then parse the JSON.
           return DataModel.fromJson(response.data);
           } else {
-          // If the server did not return a 201 CREATED response,
-          // then throw an exception.
-          throw Exception('Failed to create album.');
+            dataSuccess = false;
+            print('Xác nhận Fail');
           }
-          } catch (e) {
-        print(e);
-      }
+        } catch (e) {
+      print('chua luu xac nhan');
     }
+  }
+  Future postImage(String OWCheckListNo) async{
+    try {
+      String fileName = "Anh phieu: ${formatter.format(now)}";
+      FormData data = FormData.fromMap({
+        'OWCheckListNo': OWCheckListNo,
+        'image': await MultipartFile.fromFile(
+          image!.path, filename: fileName),
+      });
+      final responseImage = await Dio().post(
+          'http://113.161.6.185:82/api/PackageListSeverTest',
+          data: data);
+      if (responseImage.statusCode == 201) {
+        customDialog('Đã lưu ảnh phiếu thành công');
+        return responseImage.data;
+      } else {
+        customDialog('Lưu ảnh phiếu chưa thành công');
+        print('Lưu ảnh chụp phiếu fail');
+      }
+    }catch (e) {
+      customDialog('Lưu ảnh phiếu chưa thành công');
+      print('chua luu anh');
+    }
+  }
   Future pickImage() async{
     try {
       final XFile? photo = await ImagePicker().pickImage(
@@ -372,5 +405,19 @@ class _GetApiDataState extends State<GetApiData> {
     } on PlatformException catch(e){
       print('Take picture fail: $e');
     }
+  }
+  Future customDialog(String title) async{
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        content: Text(title),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Quay lại'),
+          )
+        ],
+      ),
+    );
   }
 }

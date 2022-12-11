@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:scanbarcode/model_listno.dart';
 import 'package:scanbarcode/service_api.dart';
 
 class ScanBarcode extends StatefulWidget {
@@ -15,7 +14,7 @@ class ScanBarcode extends StatefulWidget {
 }
 
 class _ScanBarcodeState extends State<ScanBarcode> {
-  String _scanBarcode = 'Chưa quét';
+  String _scanBarcode = 'Nhấn vào: Quét Barcode';
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -30,13 +29,13 @@ class _ScanBarcodeState extends State<ScanBarcode> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                        onPressed: () {
-                          scanQR();
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => GetApiData(barcode: _scanBarcode,)));
+                        onPressed: () async {
+                          await scanQR();
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => GetApiData(barcode: _scanBarcode,)));
                           },
                         child: const Text('Quét Barcode')),
                     const SizedBox(height: 50,),
-                    Text('Mã Barcode : $_scanBarcode\n',
+                    Text('$_scanBarcode\n',
                         style: const TextStyle(fontSize: 18)),
                   ],
                 ),

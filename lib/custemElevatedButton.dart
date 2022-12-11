@@ -9,10 +9,10 @@ class CustomElevatedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 50,
-      width: 100,
+      width: 90,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          primary: Colors.greenAccent,
+          primary: Colors.blue,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10)
           )
