@@ -79,7 +79,7 @@ class _GetApiDataState extends State<GetApiData> {
   Widget header(){
     return Table(
       columnWidths: const <int, TableColumnWidth>{
-        0: FlexColumnWidth(1.35),
+        0: FlexColumnWidth(1.4),
         1: FlexColumnWidth(2),
 
       },
@@ -100,17 +100,17 @@ class _GetApiDataState extends State<GetApiData> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(" Số List", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 13),),
-                  SizedBox(width: 10,),
+                  Text(" Số List", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),),
+                  SizedBox(width: 5,),
                   Container(
                     alignment: Alignment.center,
                     height: 40,
-                    width: 95,
+                    width: 90,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1),
                       borderRadius: BorderRadius.all(Radius.circular(5))
                     ),
-                    child: Text(data.isNotEmpty ? data.first.OWCheckListNo ?? "" : "", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 13),),
+                    child: Text(data.isNotEmpty ? data.first.OWCheckListNo ?? "" : "", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),),
                   )
                 ]
               ),
@@ -123,8 +123,8 @@ class _GetApiDataState extends State<GetApiData> {
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    const Text("Ngày xác nhận", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 13),),
-                    SizedBox(width: 10,),
+                    const Text("Ngày xác nhận", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),),
+                    SizedBox(width: 5,),
                     Container(
                       alignment: Alignment.center,
                       height: 40,
@@ -133,7 +133,7 @@ class _GetApiDataState extends State<GetApiData> {
                           border: Border.all(width: 1),
                           borderRadius: BorderRadius.all(Radius.circular(5))
                       ),
-                      child: Text(formatter.format(now), style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 13),textAlign: TextAlign.center,),
+                      child: Text(formatter.format(now), style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),textAlign: TextAlign.center,),
                     )
                   ]
               ),
@@ -148,8 +148,8 @@ class _GetApiDataState extends State<GetApiData> {
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Kiện/Tổng", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 13),),
-                    const SizedBox(width: 10,),
+                    const Text("Kiện/Tổng", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),),
+                    const SizedBox(width: 5,),
                     Container(
                       alignment: Alignment.center,
                       height: 40,
@@ -158,7 +158,7 @@ class _GetApiDataState extends State<GetApiData> {
                           border: Border.all(width: 1),
                           borderRadius: BorderRadius.all(Radius.circular(5))
                       ),
-                      child: Text('${dataCheckbox.length}/${data.length}', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 13),),
+                      child: Text('${dataCheckbox.length}/${data.length}', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),),
                     )
                   ]
               ),
@@ -174,12 +174,12 @@ class _GetApiDataState extends State<GetApiData> {
                 children: [
                   CustomElevatedButton(
                     onPressed: () => confirmBarcode(),
-                    child: const Text('Lưu\nxác nhận',textAlign: TextAlign.center),
+                    child: const Text('Lưu\nxác nhận',textAlign: TextAlign.center, style: TextStyle(fontSize: 12),),
                   ),
                   // SizedBox(width: 5,),
                   image != null ? CustomElevatedButton(
                     onPressed: () => postImage(data.isNotEmpty ? data.first.OWCheckListNo ?? "" : ""),
-                    child: const Text('Lưu ảnh\nphiếu',textAlign: TextAlign.center),)
+                    child: const Text('Lưu ảnh\nphiếu',textAlign: TextAlign.center, style: TextStyle(fontSize: 12)),)
                       :CustomElevatedButton(onPressed: () => pickImage(), child: const Text('Chụp phiếu',textAlign: TextAlign.center))
                 ],
               )
@@ -365,14 +365,13 @@ class _GetApiDataState extends State<GetApiData> {
     try {
       String fileName = "Anh phieu: ${formatter.format(now)}";
       FormData data = FormData.fromMap({
-        'OWCheckListNo': OWCheckListNo,
-        'image': await MultipartFile.fromFile(
+        'FileContent': await MultipartFile.fromFile(
           image!.path, filename: fileName),
       });
       final responseImage = await Dio().post(
-          'http://113.161.6.185:82/api/PackageListSeverTest',
+          'http://113.161.6.185:82/api/ImageAPI/UploadFiles?listOW=${widget.barcode}',
           data: data);
-      if (responseImage.statusCode == 201) {
+      if (responseImage.statusCode == 200) {
         customDialog('Đã lưu ảnh phiếu thành công');
         return responseImage.data;
       } else {
