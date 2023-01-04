@@ -1,17 +1,16 @@
-class DataModel {
+class DriverModel {
   String? RowID;
   String? CaseNo;
   String? OWCheckListNo;
   String? FTFinishDate;
-  bool? checkbox = true;
   String? FTPlaceCode;
   String? OWTruckNo;
   String? OWDeliveryEmployeeCode;
 
-  DataModel({this.RowID, this.CaseNo, this.OWCheckListNo, required this.FTFinishDate, this.checkbox, this.FTPlaceCode,
-              this.OWDeliveryEmployeeCode, this.OWTruckNo});
+  DriverModel({this.RowID, this.CaseNo, this.OWCheckListNo, required this.FTFinishDate, this.FTPlaceCode,
+    this.OWDeliveryEmployeeCode, this.OWTruckNo});
 
-  DataModel.fromJson(Map<String, dynamic> json) {
+  DriverModel.fromJson(Map<String, dynamic> json) {
     RowID = json['RowID'];
     CaseNo = json['CaseNo'];
     OWCheckListNo = json['OWCheckListNo'];

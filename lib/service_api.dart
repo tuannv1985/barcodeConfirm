@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:scanbarcode/model_listno.dart';
 import 'package:intl/intl.dart';
 import 'package:scanbarcode/custemElevatedButton.dart';
+import 'package:scanbarcode/scanbarcode.dart';
 class GetApiData extends StatefulWidget {
   final String barcode;
   const GetApiData({Key? key, required this.barcode}) : super(key: key);
@@ -15,11 +16,11 @@ class GetApiData extends StatefulWidget {
   State<GetApiData> createState() => _GetApiDataState();
 }
 class _GetApiDataState extends State<GetApiData> {
-  TextEditingController textController = TextEditingController();
   List<DataModel>  data = [];
   List<DataModel>  dataCheckbox = [];
   final DateTime now = DateTime.now();
   final DateFormat formatter = DateFormat('MM/dd/yyyy HH:mm:ss');
+  final DateFormat formatterImage = DateFormat('ddMMyyyy_HHmmss');
   File? image;
   var stt = 0;
   bool dataSuccess = true;
@@ -54,16 +55,19 @@ class _GetApiDataState extends State<GetApiData> {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Xác nhận giao hàng"),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 10, top: 10, right: 10, bottom: 30),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            header(),
+            header(height, width),
             SizedBox(height: 20,),
             bodyHeader(),
             Expanded(
@@ -76,10 +80,10 @@ class _GetApiDataState extends State<GetApiData> {
       ),
     );
   }
-  Widget header(){
+  Widget header(double height, double width){
     return Table(
       columnWidths: const <int, TableColumnWidth>{
-        0: FlexColumnWidth(1.4),
+        0: FlexColumnWidth(1.5),
         1: FlexColumnWidth(2),
 
       },
@@ -96,16 +100,16 @@ class _GetApiDataState extends State<GetApiData> {
           TableCell(
             verticalAlignment: TableCellVerticalAlignment.fill,
             child: Container(
-              height: 50,
+              height: 45,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(" Số List", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),),
+                  Text("Số List", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),),
                   SizedBox(width: 5,),
                   Container(
                     alignment: Alignment.center,
-                    height: 40,
-                    width: 90,
+                    height: 35,
+                    width: width * 1/4.4,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1),
                       borderRadius: BorderRadius.all(Radius.circular(5))
@@ -119,16 +123,16 @@ class _GetApiDataState extends State<GetApiData> {
           TableCell(
             verticalAlignment: TableCellVerticalAlignment.bottom,
             child: Container(
-              height: 50,
+              height: 45,
+              margin: const EdgeInsets.only(left: 20),
               child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text("Ngày xác nhận", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),),
-                    SizedBox(width: 5,),
                     Container(
                       alignment: Alignment.center,
-                      height: 40,
-                      width: 90,
+                      height: 35,
+                      width: width * 1/4.4,
                       decoration: BoxDecoration(
                           border: Border.all(width: 1),
                           borderRadius: BorderRadius.all(Radius.circular(5))
@@ -144,7 +148,55 @@ class _GetApiDataState extends State<GetApiData> {
           TableCell(
             verticalAlignment: TableCellVerticalAlignment.fill,
             child: Container(
-              height: 50,
+              height: 45,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Tài xế", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),),
+                    SizedBox(width: 5,),
+                    Container(
+                      alignment: Alignment.center,
+                      height: 35,
+                      width: width * 1/4.4,
+                      decoration: BoxDecoration(
+                          border: Border.all(width: 1),
+                          borderRadius: BorderRadius.all(Radius.circular(5))
+                      ),
+                      child: Text(data.isNotEmpty ? data.first.OWDeliveryEmployeeCode ?? "" : "", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),),
+                    )
+                  ]
+              ),
+            ),
+          ),
+          TableCell(
+            verticalAlignment: TableCellVerticalAlignment.bottom,
+            child: Container(
+              height: 45,
+              margin: const EdgeInsets.only(left: 25),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Biển số xe", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),),
+                    Container(
+                      alignment: Alignment.center,
+                      height: 35,
+                      width: width * 1/4.4,
+                      decoration: BoxDecoration(
+                          border: Border.all(width: 1),
+                          borderRadius: BorderRadius.all(Radius.circular(5))
+                      ),
+                      child: Text(data.isNotEmpty ? data.first.OWTruckNo ?? "" : "", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),textAlign: TextAlign.center,),
+                    )
+                  ]
+              ),
+            ),
+          ),
+        ]),
+        TableRow(children: [
+          TableCell(
+            verticalAlignment: TableCellVerticalAlignment.fill,
+            child: Container(
+              height: 45,
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -152,8 +204,8 @@ class _GetApiDataState extends State<GetApiData> {
                     const SizedBox(width: 5,),
                     Container(
                       alignment: Alignment.center,
-                      height: 40,
-                      width: 70,
+                      height: 35,
+                      width: width * 1/6,
                       decoration: BoxDecoration(
                           border: Border.all(width: 1),
                           borderRadius: BorderRadius.all(Radius.circular(5))
@@ -167,22 +219,12 @@ class _GetApiDataState extends State<GetApiData> {
           TableCell(
             verticalAlignment: TableCellVerticalAlignment.bottom,
             child: Container(
-              height: 50,
-              margin: EdgeInsets.only(left: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomElevatedButton(
-                    onPressed: () => confirmBarcode(),
-                    child: const Text('Lưu\nxác nhận',textAlign: TextAlign.center, style: TextStyle(fontSize: 12),),
-                  ),
-                  // SizedBox(width: 5,),
-                  image != null ? CustomElevatedButton(
-                    onPressed: () => postImage(data.isNotEmpty ? data.first.OWCheckListNo ?? "" : ""),
-                    child: const Text('Lưu ảnh\nphiếu',textAlign: TextAlign.center, style: TextStyle(fontSize: 12)),)
-                      :CustomElevatedButton(onPressed: () => pickImage(), child: const Text('Chụp phiếu',textAlign: TextAlign.center))
-                ],
-              )
+                height: 45,
+                margin: EdgeInsets.only(top: 5,left: width*1/10, right: width*1/8),
+                child: image != null ? CustomElevatedButton(
+                  onPressed: () => confirmBarcode(),
+                  child: const Text('Lưu xác nhận',textAlign: TextAlign.center, style: TextStyle(fontSize: 13)),)
+                    :CustomElevatedButton(onPressed: () => pickImage(), child: const Text('Chụp phiếu',textAlign: TextAlign.center, style: TextStyle(fontSize: 13)))
             ),
           ),
         ]),
@@ -194,7 +236,7 @@ class _GetApiDataState extends State<GetApiData> {
       columnWidths: const <int, TableColumnWidth>{
         0: FlexColumnWidth(1),
         1: FlexColumnWidth(3),
-        2: FlexColumnWidth(2),
+        2: FlexColumnWidth(3),
         3: FlexColumnWidth(2),
 
       },
@@ -212,7 +254,7 @@ class _GetApiDataState extends State<GetApiData> {
             verticalAlignment: TableCellVerticalAlignment.fill,
             child: Container(
               color: Colors.amber,
-              height: 50,
+              height: 40,
               child: Center(
                 child: Text("STT", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent, fontSize: 12),),
               ),
@@ -222,7 +264,7 @@ class _GetApiDataState extends State<GetApiData> {
             verticalAlignment: TableCellVerticalAlignment.fill,
             child: Container(
               color: Colors.amber,
-              height: 50,
+              height: 40,
               child: const Center(
                 child: Text("Số Kiện", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent, fontSize: 12),),
               ),
@@ -232,7 +274,7 @@ class _GetApiDataState extends State<GetApiData> {
             verticalAlignment: TableCellVerticalAlignment.fill,
             child: Container(
               color: Colors.amber,
-              height: 50,
+              height: 40,
               child: const Center(
                 child: Text("Nhà máy", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent, fontSize: 12),),
               ),
@@ -242,7 +284,7 @@ class _GetApiDataState extends State<GetApiData> {
             verticalAlignment: TableCellVerticalAlignment.bottom,
             child: Container(
               color: Colors.amber,
-              height: 50,
+              height: 40,
               child: const Center(
                 child: Text("Kiểm tra kiện", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent, fontSize: 12),),
               ),
@@ -260,7 +302,7 @@ class _GetApiDataState extends State<GetApiData> {
         columnWidths: const <int, TableColumnWidth>{
           0: FlexColumnWidth(1),
           1: FlexColumnWidth(3),
-          2: FlexColumnWidth(2),
+          2: FlexColumnWidth(3),
           3: FlexColumnWidth(2),
 
         },
@@ -330,22 +372,28 @@ class _GetApiDataState extends State<GetApiData> {
     ]);
   }
   confirmBarcode() async{
-    dataSuccess = true;
-    var temp = data.sublist(0,5).where((element) => element.checkbox == true).toList();
-    for (var element in temp) {
-      var date = element.FTFinishDate = formatter.format(now).toString();
-      var rowID = element.RowID;
-      await putData(rowID, date);
+    try{
+      dataSuccess = true;
+      var temp = data.where((element) => element.checkbox == true).toList();
+      for (var element in temp) {
+        var date = element.FTFinishDate = formatter.format(now).toString();
+        var rowID = element.RowID;
+        await putData(rowID, date);
+      }
+      postImage();
+      if(dataSuccess){
+        print('Đã lưu xác nhận thành công');
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ScanBarcode()));
+      } else {
+        customDialog('Lưu xác nhận chưa thành công');
+      }
+      setState((){
+        dataCheckbox.clear();
+        dataCheckbox.addAll(temp);
+      });
+    }catch(e){
+      print('Xác nhận Fail');
     }
-    if(dataSuccess){
-      customDialog('Đã lưu xác nhận thành công');
-    } else {
-      customDialog('Lưu xác nhận chưa thành công');
-    }
-    setState((){
-      dataCheckbox.clear();
-      dataCheckbox.addAll(temp);
-    });
   }
   Future putData(String? rowID, String? date) async {
     try {
@@ -361,25 +409,28 @@ class _GetApiDataState extends State<GetApiData> {
       print('chua luu xac nhan');
     }
   }
-  Future postImage(String OWCheckListNo) async{
+  Future postImage() async{
     try {
-      String fileName = "Anh phieu: ${formatter.format(now)}";
+      String fileName = image!.path.split('/').last;
+      String ext = fileName.split(".").last;
+      String name = 'image_${formatterImage.format(now)}.$ext';
       FormData data = FormData.fromMap({
         'FileContent': await MultipartFile.fromFile(
-          image!.path, filename: fileName),
+          image!.path, filename: name),
       });
       final responseImage = await Dio().post(
           'http://113.161.6.185:82/api/ImageAPI/UploadFiles?listOW=${widget.barcode}',
           data: data);
       if (responseImage.statusCode == 200) {
-        customDialog('Đã lưu ảnh phiếu thành công');
+        // customDialog('Đã lưu ảnh phiếu thành công');
+        print('Lưu ảnh chụp phiếu true');
         return responseImage.data;
       } else {
-        customDialog('Lưu ảnh phiếu chưa thành công');
+        // customDialog('Lưu ảnh phiếu chưa thành công');
         print('Lưu ảnh chụp phiếu fail');
       }
     }catch (e) {
-      customDialog('Lưu ảnh phiếu chưa thành công');
+      // customDialog('Lưu ảnh phiếu chưa thành công');
       print('chua luu anh');
     }
   }
@@ -390,8 +441,8 @@ class _GetApiDataState extends State<GetApiData> {
       );
       if(photo == null) return;
       var size = File(photo.path).lengthSync();
-      if(size > 512) {
-        var percent = ((512/size)*100).ceil();
+      if(size > 500000) {
+        var percent = ((500000/size)*100).ceil();
         File compressedFile = await FlutterNativeImage.compressImage(photo.path,
             quality: percent, percentage: 100);
         final imageTemp = File(compressedFile.path);
@@ -400,7 +451,6 @@ class _GetApiDataState extends State<GetApiData> {
         final imageTemp = File(photo.path);
         setState(() => image = imageTemp);
       }
-
     } on PlatformException catch(e){
       print('Take picture fail: $e');
     }

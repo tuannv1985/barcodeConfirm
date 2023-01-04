@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:scanbarcode/login.dart';
 import 'package:scanbarcode/scanbarcode.dart';
 import 'package:scanbarcode/service_api.dart';
 
@@ -12,6 +13,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-        home: ScanBarcode());
+        home: LogInScreen());
   }
 }
